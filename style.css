@@ -205,9 +205,15 @@ h2 {
     top: 22px;
     right: 24px;
     z-index: 10;
-    display: flex;
+    display: none;
     align-items: center;
     gap: 10px;
+}
+
+@media (hover: hover) and (min-width: 851px) {
+    .effects-control {
+        display: flex;
+    }
 }
 
 .effects-label {
@@ -313,7 +319,6 @@ h2 {
 }
 
 @media (hover: none), (max-width: 850px) {
-    .effects-control,
     .grid-glow-layer {
         display: none;
     }
