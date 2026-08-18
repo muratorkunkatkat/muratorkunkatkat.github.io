@@ -10,6 +10,9 @@
 <body>
 
     <div class="grid-background"></div>
+    <div class="grid-glow-layer">
+        <div class="grid-glow-spot" id="grid-glow-spot"></div>
+    </div>
 
     <div class="content-wrapper">
         <header class="header-flex">
@@ -42,7 +45,7 @@
                     <h2>Education</h2>
                     <div class="separator"></div>
                 </div>
-                <p><strong>Özyeğin University</strong><br>B.S. in Industrial Engineering (09.2022 - 01.2027)<br>CGPA: 3.43/4.00
+                <p><strong>Özyeğin University</strong><br>B.S. in Industrial Engineering (09.2022 - 01.2027)<br>CGPA: 3.52/4.00
                     <br><br>Computer Science Minor (09.2024 - 06.2025)<br>GPA: 3.31/4.00
                     <br><br>
 
@@ -60,6 +63,141 @@
             </div>
         </section>
     </div>
+
+    <script>
+        (function () {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            var layer = document.querySelector('.grid-glow-layer');
+            var spot = document.getElementById('grid-glow-spot');
+            var canHover = window.matchMedia('(hover: hover)').matches;
+
+            var hoverRadius = 280;
+            var clickRadius = 420;
+            var gridSize = 50;
+
+            var hoverTargetX = -1000;
+            var hoverTargetY = -1000;
+            var hoverCurrentX = -1000;
+            var hoverCurrentY = -1000;
+            var hoverRafId = null;
+
+            var activeWaves = [];
+            var waveRafId = null;
+            var lastTouchTime = 0;
+
+            function gridOffset(value) {
+                return -((value % gridSize + gridSize) % gridSize);
+            }
+
+            function renderHover() {
+                if (!spot) return;
+                var sx = hoverCurrentX - hoverRadius;
+                var sy = hoverCurrentY - hoverRadius;
+                spot.style.transform = 'translate3d(' + sx + 'px,' + sy + 'px,0)';
+                spot.style.backgroundPosition = gridOffset(sx) + 'px ' + gridOffset(sy) + 'px';
+            }
+
+            function isHoverAnimating() {
+                return Math.abs(hoverTargetX - hoverCurrentX) > 0.4 ||
+                    Math.abs(hoverTargetY - hoverCurrentY) > 0.4;
+            }
+
+            function tickHover() {
+                hoverCurrentX += (hoverTargetX - hoverCurrentX) * 0.18;
+                hoverCurrentY += (hoverTargetY - hoverCurrentY) * 0.18;
+                renderHover();
+
+                if (isHoverAnimating()) {
+                    hoverRafId = requestAnimationFrame(tickHover);
+                    return;
+                }
+
+                hoverRafId = null;
+                if (hoverTargetX < 0 && spot) {
+                    spot.classList.remove('is-active');
+                }
+            }
+
+            function startHoverAnimation() {
+                if (!spot) return;
+                spot.classList.add('is-active');
+                if (!hoverRafId) {
+                    hoverRafId = requestAnimationFrame(tickHover);
+                }
+            }
+
+            if (canHover && spot) {
+                document.addEventListener('mousemove', function (e) {
+                    hoverTargetX = e.clientX;
+                    hoverTargetY = e.clientY;
+                    startHoverAnimation();
+                }, { passive: true });
+
+                document.addEventListener('mouseleave', function () {
+                    hoverTargetX = -1000;
+                    hoverTargetY = -1000;
+                    startHoverAnimation();
+                });
+            }
+
+            function createClickWave(x, y) {
+                if (!layer) return;
+
+                var wave = document.createElement('div');
+                wave.className = 'grid-click-wave';
+                var sx = x - clickRadius;
+                var sy = y - clickRadius;
+                wave.style.transform = 'translate3d(' + sx + 'px,' + sy + 'px,0)';
+                wave.style.backgroundPosition = gridOffset(sx) + 'px ' + gridOffset(sy) + 'px';
+                layer.appendChild(wave);
+
+                activeWaves.push({
+                    el: wave,
+                    start: performance.now(),
+                    duration: 950
+                });
+
+                if (!waveRafId) {
+                    waveRafId = requestAnimationFrame(tickWaves);
+                }
+            }
+
+            function tickWaves(now) {
+                for (var i = activeWaves.length - 1; i >= 0; i--) {
+                    var wave = activeWaves[i];
+                    var progress = (now - wave.start) / wave.duration;
+
+                    if (progress >= 1) {
+                        wave.el.remove();
+                        activeWaves.splice(i, 1);
+                        continue;
+                    }
+
+                    var eased = 1 - Math.pow(1 - progress, 2.6);
+                    var radius = eased * clickRadius;
+                    var fade = progress < 0.5 ? 1 : 1 - ((progress - 0.5) / 0.5);
+
+                    wave.el.style.setProperty('--wave-r', radius + 'px');
+                    wave.el.style.opacity = String(fade);
+                }
+
+                waveRafId = activeWaves.length ? requestAnimationFrame(tickWaves) : null;
+            }
+
+            document.addEventListener('click', function (e) {
+                if (Date.now() - lastTouchTime < 500) return;
+                createClickWave(e.clientX, e.clientY);
+            });
+
+            document.addEventListener('touchstart', function (e) {
+                if (e.touches.length !== 1) return;
+                lastTouchTime = Date.now();
+                var touch = e.touches[0];
+                createClickWave(touch.clientX, touch.clientY);
+            }, { passive: true });
+        })();
+    </script>
 
 </body>
 </html>

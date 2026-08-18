@@ -1,5 +1,11 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+:root {
+    --readability-mask: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.5) 75%, black 100%);
+    --hover-radius: 280px;
+    --click-radius: 420px;
+}
+
 body {
     background-color: #0d0d0d;
     color: #e0e0e0;
@@ -18,8 +24,94 @@ body {
         linear-gradient(to right, rgba(255, 0, 255, 0.6) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 0, 255, 0.6) 1px, transparent 1px);
     background-size: 50px 50px;
-    mask-image: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 75%, black 100%);
-    -webkit-mask-image: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 75%, black 100%);
+    mask-image: var(--readability-mask);
+    -webkit-mask-image: var(--readability-mask);
+}
+
+.grid-glow-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    mask-image: var(--readability-mask);
+    -webkit-mask-image: var(--readability-mask);
+}
+
+.grid-glow-spot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--hover-radius) * 2);
+    height: calc(var(--hover-radius) * 2);
+    opacity: 0;
+    will-change: transform;
+    background-image:
+        linear-gradient(to right, rgba(255, 45, 85, 1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 45, 85, 1) 1px, transparent 1px),
+        linear-gradient(to right, rgba(255, 120, 255, 1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 120, 255, 1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    filter:
+        drop-shadow(0 0 10px rgba(255, 35, 75, 1))
+        drop-shadow(0 0 10px rgba(255, 0, 255, 1))
+        drop-shadow(0 0 20px rgba(255, 0, 180, 0.5));
+    -webkit-mask-image: radial-gradient(
+        circle,
+        black 0%,
+        rgba(0, 0, 0, 0.85) 28%,
+        rgba(0, 0, 0, 0.45) 52%,
+        transparent 70%
+    );
+    mask-image: radial-gradient(
+        circle,
+        black 0%,
+        rgba(0, 0, 0, 0.85) 28%,
+        rgba(0, 0, 0, 0.45) 52%,
+        transparent 70%
+    );
+}
+
+.grid-glow-spot.is-active {
+    opacity: 1;
+}
+
+.grid-click-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--click-radius) * 2);
+    height: calc(var(--click-radius) * 2);
+    pointer-events: none;
+    --wave-r: 0px;
+    background-image:
+        linear-gradient(to right, rgba(255, 35, 70, 1) 1.5px, transparent 1.5px),
+        linear-gradient(to bottom, rgba(255, 35, 70, 1) 1.5px, transparent 1.5px),
+        linear-gradient(to right, rgba(255, 110, 255, 1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 110, 255, 1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    filter:
+        drop-shadow(0 0 14px rgba(255, 25, 60, 1))
+        drop-shadow(0 0 14px rgba(255, 0, 255, 1))
+        drop-shadow(0 0 30px rgba(255, 0, 100, 0.55));
+    -webkit-mask-image: radial-gradient(
+        circle at center,
+        transparent calc(var(--wave-r) - 32px),
+        rgba(0, 0, 0, 0.35) calc(var(--wave-r) - 14px),
+        black calc(var(--wave-r) - 4px),
+        rgba(0, 0, 0, 0.9) var(--wave-r),
+        rgba(0, 0, 0, 0.2) calc(var(--wave-r) + 36px),
+        transparent calc(var(--wave-r) + 72px)
+    );
+    mask-image: radial-gradient(
+        circle at center,
+        transparent calc(var(--wave-r) - 32px),
+        rgba(0, 0, 0, 0.35) calc(var(--wave-r) - 14px),
+        black calc(var(--wave-r) - 4px),
+        rgba(0, 0, 0, 0.9) var(--wave-r),
+        rgba(0, 0, 0, 0.2) calc(var(--wave-r) + 36px),
+        transparent calc(var(--wave-r) + 72px)
+    );
 }
 
 .title-group {
@@ -80,6 +172,12 @@ h2 {
     margin-top: 25px;
 }
 
+.social-bar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .social-bar img {
     width: 38px; 
     height: 38px;
@@ -102,8 +200,107 @@ h2 {
     gap: 60px;
 }
 
+@media (hover: none) {
+    .grid-glow-spot {
+        display: none;
+    }
+}
+
 @media (max-width: 850px) {
-    .header-flex { flex-direction: column; align-items: center; text-align: center; }
-    .info-grid { grid-template-columns: 1fr; text-align: center; }
-    h1 { font-size: 2.2rem; }
+    .content-wrapper {
+        padding: 40px 20px 56px;
+    }
+
+    .header-flex {
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        margin-bottom: 36px;
+    }
+
+    .left-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-pic {
+        width: 148px;
+        height: 148px;
+        border-width: 3px;
+    }
+
+    .social-bar {
+        gap: 16px;
+        margin-top: 18px;
+    }
+
+    .social-bar a {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .social-bar img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .right-col {
+        width: 100%;
+    }
+
+    .title-group {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    h1, h2 {
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: 0.06em;
+        line-height: 1.1;
+    }
+
+    h1 {
+        font-size: 2rem;
+        -webkit-text-stroke: 1.4px #ffffff;
+    }
+
+    h2 {
+        font-size: 1.45rem;
+        -webkit-text-stroke: 1px #ffffff;
+    }
+
+    .about-text {
+        font-size: 1rem;
+        line-height: 1.65;
+        text-align: left;
+        padding: 22px 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 0, 255, 0.12);
+        border-left: 3px solid #3e006b;
+        border-radius: 10px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .column {
+        text-align: left;
+        padding: 22px 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 0, 255, 0.12);
+        border-left: 3px solid #3e006b;
+        border-radius: 10px;
+    }
+
+    .column p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
 }
