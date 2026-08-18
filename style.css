@@ -200,8 +200,121 @@ h2 {
     gap: 60px;
 }
 
-@media (hover: none) {
-    .grid-glow-spot {
+.effects-control {
+    position: fixed;
+    top: 22px;
+    right: 24px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.effects-label {
+    font-size: 0.85rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #00e5ff;
+    text-shadow:
+        0 0 6px rgba(0, 229, 255, 0.85),
+        0 0 14px rgba(0, 229, 255, 0.35);
+}
+
+.effects-switch {
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.effects-switch-track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 92px;
+    height: 34px;
+    padding: 0 10px;
+    background: #050505;
+    border-radius: 5px;
+    border: 1.5px solid #00ff88;
+    box-shadow:
+        0 0 8px rgba(0, 255, 136, 0.45),
+        inset 0 0 10px rgba(0, 255, 136, 0.06);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    --knob-width: 40px;
+    --knob-inset: 5px;
+}
+
+.effects-switch-knob {
+    position: absolute;
+    top: 50%;
+    left: var(--knob-inset);
+    width: var(--knob-width);
+    height: 22px;
+    background: #080808;
+    border: 1.5px solid #00ff88;
+    border-radius: 4px;
+    box-shadow: 0 0 7px rgba(0, 255, 136, 0.65);
+    transform: translateY(-50%);
+    transition: left 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.effects-switch-label {
+    position: relative;
+    z-index: 1;
+    font-size: 0.68rem;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+}
+
+.effects-switch-label-on,
+.effects-switch-label-off {
+    display: none;
+}
+
+.effects-switch.is-on .effects-switch-track {
+    border-color: #00ff88;
+    box-shadow:
+        0 0 8px rgba(0, 255, 136, 0.45),
+        inset 0 0 10px rgba(0, 255, 136, 0.06);
+}
+
+.effects-switch.is-on .effects-switch-knob {
+    left: var(--knob-inset);
+    border-color: #00ff88;
+    box-shadow: 0 0 7px rgba(0, 255, 136, 0.65);
+}
+
+.effects-switch.is-on .effects-switch-label-on {
+    display: block;
+    color: #00ff88;
+    text-shadow: 0 0 7px rgba(0, 255, 136, 0.85);
+}
+
+.effects-switch.is-off .effects-switch-track {
+    border-color: #ff3355;
+    box-shadow:
+        0 0 8px rgba(255, 51, 85, 0.45),
+        inset 0 0 10px rgba(255, 51, 85, 0.06);
+}
+
+.effects-switch.is-off .effects-switch-knob {
+    left: calc(100% - var(--knob-inset) - var(--knob-width));
+    border-color: #ff3355;
+    box-shadow: 0 0 7px rgba(255, 51, 85, 0.65);
+}
+
+.effects-switch.is-off .effects-switch-label-off {
+    display: block;
+    margin-left: auto;
+    color: #ff3355;
+    text-shadow: 0 0 7px rgba(255, 51, 85, 0.85);
+}
+
+@media (hover: none), (max-width: 850px) {
+    .effects-control,
+    .grid-glow-layer {
         display: none;
     }
 }

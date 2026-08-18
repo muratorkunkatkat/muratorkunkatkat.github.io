@@ -14,6 +14,17 @@
         <div class="grid-glow-spot" id="grid-glow-spot"></div>
     </div>
 
+    <div class="effects-control">
+        <span class="effects-label">EFFECTS:</span>
+        <button class="effects-switch is-on" id="effects-switch" type="button" aria-pressed="true" aria-label="Toggle visual effects">
+            <span class="effects-switch-track">
+                <span class="effects-switch-label effects-switch-label-on">ON</span>
+                <span class="effects-switch-knob"></span>
+                <span class="effects-switch-label effects-switch-label-off">OFF</span>
+            </span>
+        </button>
+    </div>
+
     <div class="content-wrapper">
         <header class="header-flex">
             <div class="left-col">
@@ -68,13 +79,17 @@
         (function () {
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+            var canHover = window.matchMedia('(hover: hover)').matches;
+            if (!canHover) return;
+
             var layer = document.querySelector('.grid-glow-layer');
             var spot = document.getElementById('grid-glow-spot');
-            var canHover = window.matchMedia('(hover: hover)').matches;
+            var switchEl = document.getElementById('effects-switch');
 
             var hoverRadius = 280;
             var clickRadius = 420;
             var gridSize = 50;
+            var effectsEnabled = true;
 
             var hoverTargetX = -1000;
             var hoverTargetY = -1000;
@@ -84,10 +99,41 @@
 
             var activeWaves = [];
             var waveRafId = null;
-            var lastTouchTime = 0;
 
             function gridOffset(value) {
                 return -((value % gridSize + gridSize) % gridSize);
+            }
+
+            function clearEffects() {
+                hoverTargetX = -1000;
+                hoverTargetY = -1000;
+                hoverCurrentX = -1000;
+                hoverCurrentY = -1000;
+                hoverRafId = null;
+
+                if (spot) {
+                    spot.classList.remove('is-active');
+                }
+
+                for (var i = activeWaves.length - 1; i >= 0; i--) {
+                    activeWaves[i].el.remove();
+                }
+                activeWaves = [];
+                waveRafId = null;
+            }
+
+            function setEffectsEnabled(enabled) {
+                effectsEnabled = enabled;
+
+                if (switchEl) {
+                    switchEl.classList.toggle('is-on', enabled);
+                    switchEl.classList.toggle('is-off', !enabled);
+                    switchEl.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+                }
+
+                if (!enabled) {
+                    clearEffects();
+                }
             }
 
             function renderHover() {
@@ -120,21 +166,23 @@
             }
 
             function startHoverAnimation() {
-                if (!spot) return;
+                if (!spot || !effectsEnabled) return;
                 spot.classList.add('is-active');
                 if (!hoverRafId) {
                     hoverRafId = requestAnimationFrame(tickHover);
                 }
             }
 
-            if (canHover && spot) {
+            if (spot) {
                 document.addEventListener('mousemove', function (e) {
+                    if (!effectsEnabled) return;
                     hoverTargetX = e.clientX;
                     hoverTargetY = e.clientY;
                     startHoverAnimation();
                 }, { passive: true });
 
                 document.addEventListener('mouseleave', function () {
+                    if (!effectsEnabled) return;
                     hoverTargetX = -1000;
                     hoverTargetY = -1000;
                     startHoverAnimation();
@@ -142,7 +190,7 @@
             }
 
             function createClickWave(x, y) {
-                if (!layer) return;
+                if (!layer || !effectsEnabled) return;
 
                 var wave = document.createElement('div');
                 wave.className = 'grid-click-wave';
@@ -186,16 +234,16 @@
             }
 
             document.addEventListener('click', function (e) {
-                if (Date.now() - lastTouchTime < 500) return;
+                if (!effectsEnabled) return;
+                if (e.target.closest('.effects-control')) return;
                 createClickWave(e.clientX, e.clientY);
             });
 
-            document.addEventListener('touchstart', function (e) {
-                if (e.touches.length !== 1) return;
-                lastTouchTime = Date.now();
-                var touch = e.touches[0];
-                createClickWave(touch.clientX, touch.clientY);
-            }, { passive: true });
+            if (switchEl) {
+                switchEl.addEventListener('click', function () {
+                    setEffectsEnabled(!effectsEnabled);
+                });
+            }
         })();
     </script>
 
